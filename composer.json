@@ -1,0 +1,36 @@
+{
+    "name": "bor-attila/cakephp-file-uploader",
+    "description": "Just another file upload plugin for CakePHP",
+    "type": "cakephp-plugin",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.0",
+        "ext-fileinfo": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-xsl": "*",
+        "ext-curl": "*",
+        "league/flysystem": "^3.0"
+    },
+    "require-dev": {
+        "cakephp/orm": "4.4.*",
+        "phpunit/phpunit": "^8.5 || ^9.3"
+    },
+    "suggest": {
+        "league/flysystem-aws-s3-v3": "To handle uploads for AWS S3",
+        "league/flysystem-azure-blob-storage": "To handle uploads for Azure Blob",
+        "league/flysystem-google-cloud-storage": "To handle uploads for Google Cloud",
+        "appwrite/php-clamav": "Scan uploaded files with ClamAV"
+    },
+    "autoload": {
+        "psr-4": {
+            "FileUploader\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FileUploader\\Test\\": "tests/",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
+        }
+    }
+}
