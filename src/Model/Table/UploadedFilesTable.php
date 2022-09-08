@@ -162,7 +162,11 @@ class UploadedFilesTable extends Table
 
         $validator
             ->scalar('original_filename', __d('file_uploader', 'Invalid original filename extension'))
-            ->maxLength('original_filename', 255, __d('file_uploader', 'The file\'s original filename is too long, max {0} chars', [255]))
+            ->maxLength(
+                'original_filename',
+                255,
+                __d('file_uploader', 'The file\'s original filename is too long, max {0} chars', [255])
+            )
             ->requirePresence('ext', 'create', __d('file_uploader', 'the file\'s original filename is not defined'))
             ->allowEmptyString('original_filename');
 

@@ -1,4 +1,4 @@
-## Basic configuration
+## Basic example
 
 Let assume you have a users table. Add a new field to your table.
 For example: photo

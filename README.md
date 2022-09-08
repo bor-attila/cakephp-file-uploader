@@ -1,5 +1,4 @@
-# File Upload Plugin
-
+# CakePHP File Upload Plugin
 
 ___NOTE: Still under development! If you want a well tested plugin then go with [cakephp-upload](https://github.com/FriendsOfCake/cakephp-upload).___
 
@@ -9,11 +8,11 @@ This is an alternate for [cakephp-upload](https://github.com/FriendsOfCake/cakep
 
 ### What is the difference between this and the other [cakephp-upload](https://github.com/FriendsOfCake/cakephp-upload) plugin ?
 
-* [PRO]Saves all data about the file into the database with a unique id
-* [CONS]Supports only predefined filesystems. Supports: local filesystem, AWS S3, Microsoft Azure, Google Cloud.
-* [PRO]Optionally: Can perform basic validations (extension, mime type, file size)
-* [PRO]Optionally: Uses ClamAV to check for viruses
-* [PRO]Optionally: Can calculate SHA1 hash of the file
+* [+] Saves all data about the file into the database with a unique id
+* [-] Supports only predefined filesystems. Supports: local filesystem, AWS S3, Microsoft Azure, Google Cloud.
+* [+] Optionally: Can perform basic validations (extension, mime type, file size)
+* [+] Optionally: Uses ClamAV to check for viruses
+* [+] Optionally: Can calculate SHA1 hash of the file
 
 ### Documentation
 
@@ -24,4 +23,4 @@ This is an alternate for [cakephp-upload](https://github.com/FriendsOfCake/cakep
 * [Using with Google cloud](docs/04-using-google-cloud.md)
 * [Validation](docs/05-validation.md)
 * [ClamAV configuration](docs/06-clamav.md)
-* [Examples](docs/90-example.md)
+* [Basic examples](docs/90-basic-example.md)

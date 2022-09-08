@@ -10,17 +10,18 @@
         "ext-openssl": "*",
         "ext-xsl": "*",
         "ext-curl": "*",
-        "league/flysystem": "^3.0"
+        "league/flysystem": "^3.0",
+        "cakephp/cakephp": "^4.4"
     },
     "require-dev": {
-        "cakephp/orm": "4.4.*",
-        "phpunit/phpunit": "^8.5 || ^9.3"
+        "phpunit/phpunit": "^8.5 || ^9.3",
+        "cakephp/cakephp-codesniffer": "^4.6"
     },
     "suggest": {
-        "league/flysystem-aws-s3-v3": "To handle uploads for AWS S3",
-        "league/flysystem-azure-blob-storage": "To handle uploads for Azure Blob",
-        "league/flysystem-google-cloud-storage": "To handle uploads for Google Cloud",
-        "appwrite/php-clamav": "Scan uploaded files with ClamAV"
+        "league/flysystem-aws-s3-v3": "Required to upload files to AWS S3 bucket",
+        "league/flysystem-azure-blob-storage": "Required to upload files to MS Azure container",
+        "league/flysystem-google-cloud-storage": "Required to upload files to Google Cloud container",
+        "appwrite/php-clamav": "Required if you want to scan uploaded files with ClamAV"
     },
     "autoload": {
         "psr-4": {
@@ -31,6 +32,11 @@
         "psr-4": {
             "FileUploader\\Test\\": "tests/",
             "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }
