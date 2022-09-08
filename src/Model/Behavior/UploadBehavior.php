@@ -231,10 +231,12 @@ class UploadBehavior extends Behavior
                     $entity->set($field, $fileEntity->get(Hash::get($settings, 'returnValue', 'id')));
                 } else {
                     $entity->setError($field, $fileEntity->getErrors());
+
                     return false;
                 }
             } catch (\Exception $exception) {
                 $entity->setError($field, ['upload-error' => $exception->getMessage()]);
+
                 return false;
             }
         }

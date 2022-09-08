@@ -13,7 +13,6 @@ use FileUploader\Model\Behavior\UploadBehavior;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
 use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemException;
 use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
 
 /**
@@ -276,11 +275,11 @@ class UploadedFilesTable extends Table
     /**
      * The Model.afterSave event is fired after an entity is saved.
      *
-     * @param EventInterface $event the fired event
-     * @param EntityInterface $entity the saved entity
-     * @param ArrayObject $options Additional options
+     * @param \Cake\Event\EventInterface $event the fired event
+     * @param \Cake\Datasource\EntityInterface $entity the saved entity
+     * @param \ArrayObject $options Additional options
      * @return void
-     * @throws FilesystemException
+     * @throws \League\Flysystem\FilesystemException
      */
     public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
     {
