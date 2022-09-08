@@ -13,6 +13,7 @@ This is an alternate for [cakephp-upload](https://github.com/FriendsOfCake/cakep
 * [CONS]Supports only predefined filesystems. Supports: local filesystem, AWS S3, Microsoft Azure, Google Cloud.
 * [PRO]Optionally: Can perform basic validations (extension, mime type, file size)
 * [PRO]Optionally: Uses ClamAV to check for viruses
+* [PRO]Optionally: Can calculate SHA1 hash of the file
 
 ### Documentation
 
