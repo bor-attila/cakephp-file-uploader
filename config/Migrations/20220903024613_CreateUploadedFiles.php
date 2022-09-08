@@ -22,6 +22,7 @@ class CreateUploadedFiles extends AbstractMigration
             ->addColumn('dir', 'string', ['limit' => 255])
             ->addColumn('filename', 'string', ['limit' => 255])
             ->addColumn('ext', 'string', ['limit' => 32])
+            ->addColumn('original_filename', 'string', ['limit' => 255])
             ->addColumn('url', 'string', ['limit' => 255, 'default' => null, 'null' => true])
             ->addColumn('size', 'integer')
             ->addColumn('type', 'string', ['limit' => 32])

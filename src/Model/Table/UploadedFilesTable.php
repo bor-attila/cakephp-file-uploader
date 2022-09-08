@@ -156,9 +156,15 @@ class UploadedFilesTable extends Table
 
         $validator
             ->scalar('ext', __d('file_uploader', 'Invalid file extension'))
-            ->maxLength('ext', 32, __d('file_uploader', 'the file\'s extension is too long, max {0} chars', [32]))
-            ->requirePresence('ext', 'create', __d('file_uploader', 'the file\'s extension is not defined'))
+            ->maxLength('ext', 32, __d('file_uploader', 'The file\'s extension is too long, max {0} chars', [32]))
+            ->requirePresence('ext', 'create', __d('file_uploader', 'The file\'s extension is not defined'))
             ->notEmptyString('ext', __d('file_uploader', 'The file extension is required'));
+
+        $validator
+            ->scalar('original_filename', __d('file_uploader', 'Invalid original filename extension'))
+            ->maxLength('original_filename', 255, __d('file_uploader', 'The file\'s original filename is too long, max {0} chars', [255]))
+            ->requirePresence('ext', 'create', __d('file_uploader', 'the file\'s original filename is not defined'))
+            ->allowEmptyString('original_filename');
 
         $validator
             ->requirePresence('url', 'create', __d('file_uploader', 'The file\'s url is not defined'))

@@ -169,6 +169,7 @@ class UploadBehavior extends Behavior
                 'dir' => $processor->getDirectory(),
                 'size' => $data->getSize(),
                 'ext' => $processor->getFileExtension(),
+                'original_filename' => $data->getClientFilename(),
                 'type' => finfo_file(
                     finfo_open(FILEINFO_MIME_TYPE),
                     $data->getStream()->getMetadata('uri')

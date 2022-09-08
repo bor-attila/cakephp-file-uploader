@@ -46,6 +46,9 @@ CREATE TABLE `uploaded_files` (
   -- the file's extension
   `ext` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
 
+  -- the file's orignal filename
+  `original_filename` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+
   -- the URL how the public can reach the file
   `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 

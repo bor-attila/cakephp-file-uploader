@@ -13,6 +13,7 @@ use Cake\ORM\Entity;
  * @property string $dir
  * @property string $filename
  * @property string $ext
+ * @property string $original_filename
  * @property string $url
  * @property int $size
  * @property string $type
@@ -40,6 +41,7 @@ class UploadedFile extends Entity
         'dir' => true,
         'filename' => true,
         'ext' => true,
+        'original_filename' => true,
         'url' => true,
         'size' => true,
         'type' => true,
@@ -57,6 +59,7 @@ class UploadedFile extends Entity
         'dir',
         'filename',
         'ext',
+        'original_filename',
         'size',
         'type',
         'sha1_hash',
