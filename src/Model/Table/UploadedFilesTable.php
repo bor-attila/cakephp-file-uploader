@@ -3,9 +3,18 @@ declare(strict_types=1);
 
 namespace FileUploader\Model\Table;
 
+use ArrayObject;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\EventInterface;
 use Cake\ORM\Table;
+use Cake\Utility\Text;
 use Cake\Validation\Validator;
 use FileUploader\Model\Behavior\UploadBehavior;
+use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
+use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
 
 /**
  * UploadedFiles Model
@@ -45,12 +54,17 @@ class UploadedFilesTable extends Table
     private array $_allowedExtensions = [];
 
     /**
-     * @var array Contains the allowed media size (in bytes)
+     * @var array<string, string> Contains the allowed media size (in human readable string)
      */
     private array $_size_limit = [
         'min' => null,
         'max' => null,
     ];
+
+    /**
+     * @var \League\Flysystem\Filesystem The used file system for file upload
+     */
+    private \League\Flysystem\Filesystem $fileSystem;
 
     /**
      * Initialize method
@@ -71,6 +85,29 @@ class UploadedFilesTable extends Table
         $this->addCloudProvider(UploadBehavior::S3);
         $this->addCloudProvider(UploadBehavior::MS_AZURE);
         $this->addCloudProvider(UploadBehavior::GOOGLE_CLOUD);
+    }
+
+    /**
+     * Returns a FilesystemAdapter which knows how to upload/move the file
+     *
+     * @param string $container The container/bucket name
+     * @param string $prefix The prefix where we upload the file
+     * @param \MicrosoftAzure\Storage\Blob\BlobRestProxy|\Aws\S3\S3Client|\Google\Cloud\Storage\StorageClient|null $client The uploader client
+     * @return void
+     */
+    public function setFilesystem(string $container, string $prefix, mixed $client = null): void
+    {
+        if ($client instanceof \Aws\S3\S3Client) {
+            $adapter = new AwsS3V3Adapter($client, $container, $prefix);
+        } elseif ($client instanceof \MicrosoftAzure\Storage\Blob\BlobRestProxy) {
+            $adapter = new AzureBlobStorageAdapter($client, $container, $prefix);
+        } elseif ($client instanceof \Google\Cloud\Storage\StorageClient) {
+            $adapter = new GoogleCloudStorageAdapter($client->bucket($container), $prefix);
+        } else {
+            $adapter = new \League\Flysystem\Local\LocalFilesystemAdapter($container . $prefix);
+        }
+
+        $this->fileSystem = new Filesystem($adapter);
     }
 
     /**
@@ -98,10 +135,10 @@ class UploadedFilesTable extends Table
     /**
      * Sets the file max size for validation
      *
-     * @param int|null $size The file's max size in bytes
+     * @param string|null $size The file's max size in human readable string like '5MB', '5M', '500B', '50kb' etc.
      * @return void
      */
-    public function setMaxFileSize(?int $size): void
+    public function setMaxFileSize(?string $size): void
     {
         $this->_size_limit['max'] = $size;
     }
@@ -109,10 +146,10 @@ class UploadedFilesTable extends Table
     /**
      * Sets the file min size for validation
      *
-     * @param int|null $size The file's min size in bytes
+     * @param string|null $size The file's min size in human readable string like '5MB', '5M', '500B', '50kb' etc.
      * @return void
      */
-    public function setMinFileSize(?int $size): void
+    public function setMinFileSize(?string $size): void
     {
         $this->_size_limit['min'] = $size;
     }
@@ -191,6 +228,12 @@ class UploadedFilesTable extends Table
             ->allowEmptyString('sha1_hash');
 
         $validator
+            ->scalar('origin', __d('file_uploader', 'Invalid origin table name'))
+            ->maxLength('origin', 255, __d('file_uploader', 'The origin table name is too long'))
+            ->requirePresence('origin', 'create', __d('file_uploader', 'The origin table name is not defined'))
+            ->notEmptyString('origin', __d('file_uploader', 'The origin table name is required'));
+
+        $validator
             ->requirePresence('metadata', 'create', __d('file_uploader', 'The file metadata\'s is not defined'))
             ->allowEmptyArray('metadata');
 
@@ -209,24 +252,42 @@ class UploadedFilesTable extends Table
                 ->inList('ext', $this->_allowedExtensions, __d('file_uploader', 'Invalid file extension'));
         }
 
-        if (is_int($this->_size_limit['min'])) {
+        if (is_string($this->_size_limit['min'])) {
             $validator
                 ->greaterThanOrEqual(
                     'size',
-                    $this->_size_limit['min'],
-                    __d('file_uploader', 'The file must be at least {0} bytes', $this->_size_limit['min'])
+                    Text::parseFileSize($this->_size_limit['min']),
+                    __d('file_uploader', 'The file must be at least {0}', $this->_size_limit['min'])
                 );
         }
 
-        if (is_int($this->_size_limit['max'])) {
+        if (is_string($this->_size_limit['max'])) {
             $validator
                 ->lessThanOrEqual(
                     'size',
-                    $this->_size_limit['max'],
-                    __d('file_uploader', 'The file must not exceed {0} bytes', $this->_size_limit['max'])
+                    Text::parseFileSize($this->_size_limit['max']),
+                    __d('file_uploader', 'The file must not exceed {0}', $this->_size_limit['max'])
                 );
         }
 
         return $validator;
+    }
+
+    /**
+     * The Model.afterSave event is fired after an entity is saved.
+     *
+     * @param EventInterface $event the fired event
+     * @param EntityInterface $entity the saved entity
+     * @param ArrayObject $options Additional options
+     * @return void
+     * @throws FilesystemException
+     */
+    public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
+    {
+        /** @var \Psr\Http\Message\UploadedFileInterface $file */
+        $file = $entity->get('_file');
+
+        /** @var \FileUploader\Model\Entity\UploadedFile $entity */
+        $this->fileSystem->write($entity->full_filename, $file->getStream()->getContents());
     }
 }

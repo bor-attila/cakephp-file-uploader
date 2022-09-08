@@ -16,13 +16,6 @@ use FileUploader\FilePathProcessor\CloudProcessor;
 use FileUploader\FilePathProcessor\DefaultProcessor;
 use FileUploader\Model\Table\UploadedFilesTable;
 use Google\Cloud\Storage\StorageClient;
-use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
-use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
-use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemAdapter;
-use League\Flysystem\FilesystemException;
-use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
-use League\Flysystem\UnableToWriteFile;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -33,10 +26,19 @@ class UploadBehavior extends Behavior
 {
     use LocatorAwareTrait;
 
+    /**
+     * The AWS S3 ID
+     */
     public const S3 = 'aws_s3';
 
+    /**
+     * The MS Azure ID
+     */
     public const MS_AZURE = 'ms_azure';
 
+    /**
+     * The Google Cloud ID
+     */
     public const GOOGLE_CLOUD = 'google_cloud';
 
     /**
@@ -106,6 +108,7 @@ class UploadBehavior extends Behavior
      * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be saved
      * @param \ArrayObject $options the options passed to the save method
      * @return void|false
+     * @throws \Exception
      */
     public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
@@ -175,6 +178,7 @@ class UploadBehavior extends Behavior
                     $data->getStream()->getMetadata('uri')
                 ),
                 'sha1_hash' => null,
+                'origin' => $this->table()->getAlias(),
                 'metadata' => [],
                 'cloud_provider' => match (true) {
                     $client instanceof S3Client => self::S3,
@@ -201,7 +205,7 @@ class UploadBehavior extends Behavior
 
             $allowedExtensions = Hash::get($settings, 'validation.allowedExtensions', []);
             foreach ($allowedExtensions as $extension) {
-                $UploadedImagesTable->addAllowedExtension($extension);
+                $UploadedFileTable->addAllowedExtension($extension);
             }
 
             $allowedMimeTypes = Hash::get($settings, 'validation.allowedMimeTypes', []);
@@ -213,81 +217,28 @@ class UploadBehavior extends Behavior
 
             $UploadedFileTable->setMinFileSize(Hash::get($settings, 'validation.fileSize.min'));
 
+            $UploadedFileTable->setFilesystem($processor->getRootDirectory(), $processor->getDirectory(), $client);
+
             /** @var \FileUploader\Model\Entity\UploadedFile $fileEntity */
             $fileEntity = $UploadedFileTable->newEntity(
                 $image_data,
                 [
                     'accessibleFields' => ['_file' => true],
-                    'validate' => Hash::get($settings, 'validation.rule', 'default'),
+                    'validate' => Hash::get($settings, 'validation.method', 'default'),
                 ]
             );
 
-            if ($fileEntity->hasErrors()) {
-                $entity->setError($field, $fileEntity->getErrors());
-
-                return false;
-            }
-
-            /** @var \League\Flysystem\Filesystem $filesystem */
-            $filesystem = new Filesystem($this->createFilesystemAdapter(
-                $processor->getRootDirectory(),
-                $processor->getDirectory(),
-                $client
-            ));
-
-            $success = $this->table()->getConnection()->transactional(
-                function () use (
-                    $UploadedFileTable,
-                    $fileEntity,
-                    $data,
-                    $client,
-                    $entity,
-                    $field,
-                    $settings,
-                    $filesystem
-                ) {
-                    if (!$UploadedFileTable->save($fileEntity)) {
-                        return false;
-                    }
-
-                    try {
-                        $filesystem->write($fileEntity->full_filename, $data->getStream()->getContents());
-                    } catch (FilesystemException | UnableToWriteFile $exception) {
-                        $entity->setError($field, ['upload-error' => $exception->getMessage()]);
-
-                        return false;
-                    }
-
-                    return true;
+            try {
+                if ($UploadedFileTable->save($fileEntity)) {
+                    $entity->set($field, $fileEntity->get(Hash::get($settings, 'returnValue', 'id')));
+                } else {
+                    $entity->setError($field, $fileEntity->getErrors());
+                    return false;
                 }
-            );
-
-            if (!$success) {
+            } catch (\Exception $exception) {
+                $entity->setError($field, ['upload-error' => $exception->getMessage()]);
                 return false;
             }
-
-            $entity->set($field, $fileEntity->get(Hash::get($settings, 'returnValue', 'id')));
         }
-    }
-
-    /**
-     * Returns a FilesystemAdapter which knows how to upload/move the file
-     *
-     * @param string $container The container/bucket name
-     * @param string $prefix The prefix where we upload the file
-     * @param \MicrosoftAzure\Storage\Blob\BlobRestProxy|\Aws\S3\S3Client|\Google\Cloud\Storage\StorageClient|null $client The uploader client
-     * @return \League\Flysystem\FilesystemAdapter
-     */
-    private function createFilesystemAdapter(string $container, string $prefix, mixed $client = null): FilesystemAdapter
-    {
-        if ($client instanceof \Aws\S3\S3Client) {
-            return new AwsS3V3Adapter($client, $container, $prefix);
-        } elseif ($client instanceof \MicrosoftAzure\Storage\Blob\BlobRestProxy) {
-            return new AzureBlobStorageAdapter($client, $container, $prefix);
-        } elseif ($client instanceof \Google\Cloud\Storage\StorageClient) {
-            return new GoogleCloudStorageAdapter($client->bucket($container), $prefix);
-        }
-
-        return new \League\Flysystem\Local\LocalFilesystemAdapter($container . $prefix);
     }
 }

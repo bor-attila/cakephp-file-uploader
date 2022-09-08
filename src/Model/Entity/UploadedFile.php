@@ -18,6 +18,7 @@ use Cake\ORM\Entity;
  * @property int $size
  * @property string $type
  * @property string $sha1_hash
+ * @property string $origin
  * @property array $metadata
  * @property string|null $cloud_provider
  * @property \Cake\I18n\FrozenTime $created
@@ -46,6 +47,7 @@ class UploadedFile extends Entity
         'size' => true,
         'type' => true,
         'sha1_hash' => true,
+        'origin' => true,
         'metadata' => true,
         'cloud_provider' => true,
         'created' => true,
@@ -63,6 +65,7 @@ class UploadedFile extends Entity
         'size',
         'type',
         'sha1_hash',
+        'origin',
         'metadata',
         'cloud_provider',
         'created',

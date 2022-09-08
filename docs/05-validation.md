@@ -17,8 +17,8 @@ $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, ['image' 
         'allowedExtensions' => ['jpg', 'pdf'],
         'allowedMimeTypes' => ['application/pdf', 'image/jpg'],
         'fileSize' => [
-            'min' => 1,
-            'max' => 100,
+            'min' => null,
+            'max' => '5MB',
         ]
     ]
 ]]);
@@ -40,13 +40,13 @@ The list with allowed mime types what can be uploaded.
 
 Default value: null
 
-The file's size must be equal or higher than this number (in bytes)
+The file's size must be equal or higher than this number (in human readable string 5MB', '5M', '500B', '50kb' etc.)
 
 ***validation.fileSize.max***
 
 Default value: null
 
-The file's size must be equal or less than this number (in bytes)
+The file's size must be equal or less than this number (in human readable string 5MB', '5M', '500B', '50kb' etc.)
 
 #### Other validation methods
 
@@ -60,18 +60,18 @@ $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, ['image' 
     // ... your other configs here ....
     'validation' => [
         'table' => \App\Model\Table\MyUploadedFilesTable::class,
-        'rule' => 'image',
+        'method' => 'image',
         'allowedExtensions' => ['jpg', 'pdf'],
         'allowedMimeTypes' => ['application/pdf', 'image/jpg'],
         'fileSize' => [
-            'min' => 1,
-            'max' => 100,
+            'min' => null,
+            'max' => '5MB',
         ]
     ]
 ]]);
 ```
 
-In the example above I overrided the default _\FileUploader\Model\Table\UploadedFilesTable_ with my table, where I defined
+In the example above I override the default _\FileUploader\Model\Table\UploadedFilesTable_ with my table, where I defined
 my custom validation rules.
 
 ***validation.table***
@@ -80,8 +80,8 @@ Default value: \FileUploader\Model\Table\UploadedFilesTable::class
 
 The default Table what saves the UploadedFile entity into the database.
 
-***validation.rule***
+***validation.method***
 
 Default value: 'default'
 
-The default validation rule what is applied to the UploadedFile entity. If this fails, the upload will not happen.
+The default validation method what is applied to the UploadedFile entity. If this fails, the upload will not happen.

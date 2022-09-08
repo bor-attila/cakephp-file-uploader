@@ -28,6 +28,7 @@ class CreateUploadedFiles extends AbstractMigration
             ->addColumn('type', 'string', ['limit' => 32])
             ->addColumn('sha1_hash', 'binary', ['limit' => 20, 'default' => null, 'null' => true])
             ->addColumn('cloud_provider', 'string', ['limit' => 32, 'default' => null, 'null' => true])
+            ->addColumn('origin', 'string', ['limit' => 255])
             ->addColumn('metadata', 'json')
             ->addColumn('created', 'datetime')
             ->create();
