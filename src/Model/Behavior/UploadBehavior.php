@@ -105,10 +105,10 @@ class UploadBehavior extends Behavior
      * @param \Cake\Event\EventInterface $event The beforeSave event that was fired
      * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be saved
      * @param \ArrayObject $options the options passed to the save method
-     * @return void|false
+     * @return void
      * @throws \Exception
      */
-    public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
     {
         foreach ($this->getConfig(null, []) as $field => $settings) {
             if (is_int($field) || !$entity->isDirty($field)) {
@@ -226,18 +226,23 @@ class UploadBehavior extends Behavior
                 ]
             );
 
+            $success = true;
             try {
                 if ($UploadedFileTable->save($fileEntity)) {
                     $entity->set($field, $fileEntity->get(Hash::get($settings, 'returnValue', 'id')));
                 } else {
                     $entity->setError($field, $fileEntity->getErrors());
-
-                    return false;
+                    $success = false;
                 }
             } catch (\Exception $exception) {
                 $entity->setError($field, ['upload-error' => $exception->getMessage()]);
+                $success = false;
+            }
 
-                return false;
+            if (!$success) {
+                $event->stopPropagation();
+                $event->setResult(false);
+                break;
             }
         }
     }
