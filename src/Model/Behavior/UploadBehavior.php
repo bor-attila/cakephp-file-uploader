@@ -10,7 +10,7 @@ use Aws\S3\S3Client;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
 use Cake\ORM\Behavior;
-use Cake\ORM\Locator\LocatorAwareTrait;
+use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 use FileUploader\FilePathProcessor\CloudProcessor;
 use FileUploader\FilePathProcessor\DefaultProcessor;
@@ -24,8 +24,6 @@ use Psr\Http\Message\UploadedFileInterface;
  */
 class UploadBehavior extends Behavior
 {
-    use LocatorAwareTrait;
-
     /**
      * The AWS S3 ID
      */
@@ -198,8 +196,8 @@ class UploadBehavior extends Behavior
                 $image_data['metadata'] = $metadataCallback($this->table(), $entity, $data, $field, $settings);
             }
 
-            /** @var \FileUploader\Model\Table\UploadedFilesTable $UploadedImagesTable */
-            $UploadedFileTable = $this->getTableLocator()->get(
+            /** @var \FileUploader\Model\Table\UploadedFilesTable $UploadedFileTable */
+            $UploadedFileTable = TableRegistry::getTableLocator()->get(
                 Hash::get($settings, 'validation.table', UploadedFilesTable::class)
             );
 
