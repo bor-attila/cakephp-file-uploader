@@ -173,6 +173,7 @@ class UploadBehavior extends Behavior
                     finfo_open(FILEINFO_MIME_TYPE),
                     $data->getStream()->getMetadata('uri')
                 ),
+                'sha1_hash' => null,
                 'metadata' => [],
                 'cloud_provider' => match (true) {
                     $client instanceof S3Client => self::S3,
@@ -182,6 +183,10 @@ class UploadBehavior extends Behavior
                 },
                 '_file' => $data,
             ];
+
+            if (Hash::get($settings, 'calculateHash', false)) {
+                $image_data['sha1_hash'] = sha1_file($data->getStream()->getMetadata('uri'), true);
+            }
 
             $metadataCallback = Hash::get($settings, 'metadataCallback');
             if (is_callable($metadataCallback)) {

@@ -176,6 +176,11 @@ class UploadedFilesTable extends Table
             ->notEmptyString('type', __d('file_uploader', 'The file mime type is required'));
 
         $validator
+            ->maxLengthBytes('sha1_hash', 20, __d('file_uploader', 'Invalid SHA1 hash'))
+            ->minLengthBytes('sha1_hash', 20, __d('file_uploader', 'Invalid SHA1 hash'))
+            ->allowEmptyString('sha1_hash');
+
+        $validator
             ->requirePresence('metadata', 'create', __d('file_uploader', 'The file metadata\'s is not defined'))
             ->allowEmptyArray('metadata');
 

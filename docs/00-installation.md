@@ -5,7 +5,7 @@ You can install this plugin into your CakePHP application using [composer](https
 The recommended way to install composer packages is:
 
 ```
-composer require bor-attila/cakephp-image-uploader
+composer require bor-attila/cakephp-image-uploader:dev-main
 ```
 
 Enable the plugin in your Application.php:
@@ -22,7 +22,13 @@ bin/cake migrations migrate -p FileUploader
 
 OR
 
-You can create the database table manually.
+You can create the database table manually then mark the migration completed.
+
+```
+bin/cake migrations mark_migrated --target=20220903024613
+```
+
+The create database script for MySQL (8).
 
 ```
 CREATE TABLE `uploaded_files` (
@@ -48,6 +54,9 @@ CREATE TABLE `uploaded_files` (
 
   -- the file's mime type
   `type` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+
+  -- the file's SHA1 hash
+  `sha1_hash` binary(20) DEFAULT NULL,
 
   -- the cloud providers name
   `cloud_provider` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
