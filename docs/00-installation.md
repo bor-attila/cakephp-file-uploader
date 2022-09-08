@@ -64,6 +64,9 @@ CREATE TABLE `uploaded_files` (
   -- the cloud providers name
   `cloud_provider` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 
+  -- The name of the Table what 'uploaded' the file
+  `origin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+
   -- additional data
   `metadata` json NOT NULL,
 
