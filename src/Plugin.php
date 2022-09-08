@@ -24,6 +24,6 @@ class Plugin extends BasePlugin
      */
     public function bootstrap(PluginApplicationInterface $app): void
     {
-        TypeFactory::map('upload.image', FileType::class);
+        TypeFactory::map('upload.file', FileType::class);
     }
 }
