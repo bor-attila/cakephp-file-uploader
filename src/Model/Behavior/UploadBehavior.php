@@ -47,6 +47,13 @@ class UploadBehavior extends Behavior
     protected $_defaultConfig = [];
 
     /**
+     * @var array Field names used by the framework
+     */
+    protected array $_invalidFieldNames = [
+        'priority',
+    ];
+
+    /**
      * Initialize hook
      *
      * @param array $config The config for this behavior.
@@ -86,7 +93,7 @@ class UploadBehavior extends Behavior
         $dataArray = $data->getArrayCopy();
         /** @var string $field */
         foreach (array_keys($this->getConfig(null, [])) as $field) {
-            if (!$validator->isEmptyAllowed($field, false)) {
+            if (!$validator->isEmptyAllowed($field, false) || in_array($field, $this->_invalidFieldNames)) {
                 continue;
             }
             if (!empty($dataArray[$field]) && $dataArray[$field]->getError() !== UPLOAD_ERR_NO_FILE) {
@@ -111,7 +118,7 @@ class UploadBehavior extends Behavior
     public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
     {
         foreach ($this->getConfig(null, []) as $field => $settings) {
-            if (is_int($field) || !$entity->isDirty($field)) {
+            if (is_int($field) || in_array($field, $this->_invalidFieldNames) || !$entity->isDirty($field)) {
                 continue;
             }
 
@@ -196,29 +203,29 @@ class UploadBehavior extends Behavior
                 $image_data['metadata'] = $metadataCallback($this->table(), $entity, $data, $field, $settings);
             }
 
-            /** @var \FileUploader\Model\Table\UploadedFilesTable $UploadedFileTable */
-            $UploadedFileTable = TableRegistry::getTableLocator()->get(
-                Hash::get($settings, 'validation.table', UploadedFilesTable::class)
+            /** @var \FileUploader\Model\Table\UploadedFilesTable $FilesTable */
+            $FilesTable = TableRegistry::getTableLocator()->get(
+                Hash::get($settings, 'table', UploadedFilesTable::class)
             );
 
             $allowedExtensions = Hash::get($settings, 'validation.allowedExtensions', []);
             foreach ($allowedExtensions as $extension) {
-                $UploadedFileTable->addAllowedExtension($extension);
+                $FilesTable->addAllowedExtension($extension);
             }
 
             $allowedMimeTypes = Hash::get($settings, 'validation.allowedMimeTypes', []);
             foreach ($allowedMimeTypes as $type) {
-                $UploadedFileTable->addAllowedMimeType($type);
+                $FilesTable->addAllowedMimeType($type);
             }
 
-            $UploadedFileTable->setMaxFileSize(Hash::get($settings, 'validation.fileSize.max'));
+            $FilesTable->setMaxFileSize(Hash::get($settings, 'validation.fileSize.max'));
 
-            $UploadedFileTable->setMinFileSize(Hash::get($settings, 'validation.fileSize.min'));
+            $FilesTable->setMinFileSize(Hash::get($settings, 'validation.fileSize.min'));
 
-            $UploadedFileTable->setFilesystem($processor->getRootDirectory(), $processor->getDirectory(), $client);
+            $FilesTable->setFilesystem($processor->getRootDirectory(), $processor->getDirectory(), $client);
 
             /** @var \FileUploader\Model\Entity\UploadedFile $fileEntity */
-            $fileEntity = $UploadedFileTable->newEntity(
+            $fileEntity = $FilesTable->newEntity(
                 $image_data,
                 [
                     'accessibleFields' => ['_file' => true],
@@ -228,7 +235,7 @@ class UploadBehavior extends Behavior
 
             $success = true;
             try {
-                if ($UploadedFileTable->save($fileEntity)) {
+                if ($FilesTable->save($fileEntity)) {
                     $entity->set($field, $fileEntity->get(Hash::get($settings, 'returnValue', 'id')));
                 } else {
                     $entity->setError($field, $fileEntity->getErrors());
@@ -236,6 +243,54 @@ class UploadBehavior extends Behavior
                 }
             } catch (\Exception $exception) {
                 $entity->setError($field, ['upload-error' => $exception->getMessage()]);
+                $success = false;
+            }
+
+            if (!$success) {
+                $event->stopPropagation();
+                $event->setResult(false);
+                break;
+            }
+        }
+    }
+
+    /**
+     * The Model.beforeDelete event is fired before an entity is deleted. By stopping this event you will abort the
+     * delete operation. When the event is stopped the result of the event will be returned.
+     *
+     * @param \Cake\Event\EventInterface $event The beforeDelete event that was fired
+     * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be deleted
+     * @param \ArrayObject $options Additional options
+     * @return void
+     * @throws \Exception
+     */
+    public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
+    {
+        foreach ($this->getConfig(null, []) as $field => $settings) {
+            if (is_int($field) || in_array($field, $this->_invalidFieldNames)) {
+                continue;
+            }
+
+            $deleteCallback = Hash::get($settings, 'deleteCallback');
+            if (!is_callable($deleteCallback)) {
+                continue;
+            }
+
+            /** @var \FileUploader\Model\Table\UploadedFilesTable $FilesTable */
+            $FilesTable = TableRegistry::getTableLocator()->get(
+                Hash::get($settings, 'table', UploadedFilesTable::class)
+            );
+
+            $fileEntity = $deleteCallback($entity, $FilesTable);
+            if (!$fileEntity instanceof \FileUploader\Model\Entity\UploadedFile) {
+                continue;
+            }
+
+            $FilesTable->setFilesystem($fileEntity->root_dir, $fileEntity->dir, Hash::get($settings, 'client'));
+
+            try {
+                $success = $FilesTable->delete($fileEntity);
+            } catch (\Exception $exception) {
                 $success = false;
             }
 

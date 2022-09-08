@@ -23,4 +23,5 @@ This is an alternate for [cakephp-upload](https://github.com/FriendsOfCake/cakep
 * [Using with Google cloud](docs/04-using-google-cloud.md)
 * [Validation](docs/05-validation.md)
 * [ClamAV configuration](docs/06-clamav.md)
+* [Deleting files](docs/07-delete.md)
 * [Basic examples](docs/90-basic-example.md)

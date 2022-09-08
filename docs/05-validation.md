@@ -58,8 +58,8 @@ You can extend the UploadedFileTable and you can define custom rules, and you ca
 ```
 $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, ['image' => [
     // ... your other configs here ....
+    'table' => \App\Model\Table\MyUploadedFilesTable::class,
     'validation' => [
-        'table' => \App\Model\Table\MyUploadedFilesTable::class,
         'method' => 'image',
         'allowedExtensions' => ['jpg', 'pdf'],
         'allowedMimeTypes' => ['application/pdf', 'image/jpg'],
@@ -74,7 +74,7 @@ $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, ['image' 
 In the example above I override the default _\FileUploader\Model\Table\UploadedFilesTable_ with my table, where I defined
 my custom validation rules.
 
-***validation.table***
+***table***
 
 Default value: \FileUploader\Model\Table\UploadedFilesTable::class
 

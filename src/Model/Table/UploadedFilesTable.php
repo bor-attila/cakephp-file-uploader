@@ -61,9 +61,9 @@ class UploadedFilesTable extends Table
     ];
 
     /**
-     * @var \League\Flysystem\Filesystem The used file system for file upload
+     * @var \League\Flysystem\Filesystem|null The used file system for file upload
      */
-    private \League\Flysystem\Filesystem $fileSystem;
+    private ?\League\Flysystem\Filesystem $fileSystem = null;
 
     /**
      * Initialize method
@@ -288,5 +288,23 @@ class UploadedFilesTable extends Table
 
         /** @var \FileUploader\Model\Entity\UploadedFile $entity */
         $this->fileSystem->write($entity->full_filename, $file->getStream()->getContents());
+    }
+
+    /**
+     * The Model.beforeDelete event is fired before an entity is deleted. By stopping this event you will abort the
+     * delete operation. When the event is stopped the result of the event will be returned.
+     *
+     * @param \Cake\Event\EventInterface $event The beforeDelete event that was fired
+     * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be deleted
+     * @param \ArrayObject $options Additional options
+     * @return void
+     * @throws \League\Flysystem\FilesystemException
+     */
+    public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
+    {
+        if ($this->fileSystem instanceof Filesystem) {
+            /** @var \FileUploader\Model\Entity\UploadedFile $entity */
+            $this->fileSystem->delete($entity->full_filename);
+        }
     }
 }
