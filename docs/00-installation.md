@@ -11,7 +11,7 @@ composer require bor-attila/cakephp-file-uploader:dev-main
 Enable the plugin in your Application.php:
 
 ```
-$this->addPlugin('ImageUploader');
+$this->addPlugin('FileUploader');
 ```
 
 Run the migrations
