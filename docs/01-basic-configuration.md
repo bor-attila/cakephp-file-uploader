@@ -4,9 +4,23 @@ The full default configuration looks like this and this is a common configuratio
 system or using a cloud provider.
 
 ```
+protected function _initializeSchema(TableSchemaInterface $schema): TableSchemaInterface
+{
+    // you must define the `photo`'s column file time
+    $schema->setColumnType('photo', 'upload.file');
+    
+    // ... 
+
+    return parent::_initializeSchema($schema);
+}
+```
+
+then add behavior:
+
+```
 $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, [
     'photo' => [
-        'filePathProcessor' => \FileUploader\FileProcessor\DefaultProcessor::class,
+        'filePathProcessor' => \FileUploader\FilePathProcessor\DefaultProcessor::class,
         'metadataCallback' => function ($table, $entity, $data, $field, $settings) {
             // return a custom array with additional data
         },
