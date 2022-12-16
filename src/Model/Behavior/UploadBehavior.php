@@ -12,6 +12,8 @@ use Cake\Event\EventInterface;
 use Cake\ORM\Behavior;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
+use Cake\Utility\Text;
+use Cake\Validation\Validation;
 use FileUploader\FilePathProcessor\CloudProcessor;
 use FileUploader\FilePathProcessor\DefaultProcessor;
 use FileUploader\Model\Table\UploadedFilesTable;
@@ -72,11 +74,76 @@ class UploadBehavior extends Behavior
         $this->_config = $configs;
 
         $schema = $this->table()->getSchema();
+        $validator = $this->table()->getValidator();
+
         /** @var string $field */
         foreach (array_keys($this->getConfig()) as $field) {
             $schema->setColumnType($field, 'upload.file');
+            $this->table()->setSchema($schema);
+
+            // set validation rules
+            $validator->allowEmptyFile(
+                $field,
+                __d('file_uploader', 'This field is required'),
+                $this->getConfig($field . '.validation.allowEmptyFile', true)
+            );
+
+            $allowedExtensions = $this->getConfig($field . '.validation.allowedExtensions');
+            if (is_array($allowedExtensions) && !empty($allowedExtensions)) {
+                $validator->add(
+                    $field,
+                    'extension',
+                    [
+                        'rule' => ['extension', $allowedExtensions],
+                        'message' => __d(
+                            'file_uploader',
+                            'Invalid file extension. Allowed file types are: {0}',
+                            implode(', ', $allowedExtensions)
+                        )
+                    ]
+                );
+            }
+
+            $allowedMimeTypes = $this->getConfig($field . '.validation.allowedMimeTypes');
+            if (is_array($allowedExtensions) && !empty($allowedMimeTypes)) {
+                $validator->add(
+                    $field,
+                    'mimeType',
+                    [
+                        'rule' => ['mimeType', $allowedMimeTypes],
+                        'message' => __d(
+                            'file_uploader',
+                            'Invalid file type. Allowed file types are: {0}',
+                            implode(', ', $allowedMimeTypes)
+                        )
+                    ]
+                );
+            }
+
+            $minSize = $this->getConfig($field . '.validation.fileSize.min');
+            if (is_string($minSize)) {
+                $validator->add(
+                    $field,
+                    'fizeSizeMin',
+                    [
+                        'rule' => ['fileSize', Validation::COMPARE_GREATER_OR_EQUAL, Text::parseFileSize($minSize)],
+                        'message' => __d('file_uploader', 'The file must be at least {0}', $minSize)
+                    ]
+                );
+            }
+
+            $maxSize = $this->getConfig($field . '.validation.fileSize.max');
+            if (is_string($maxSize)) {
+                $validator->add(
+                    $field,
+                    'fizeSizeMax',
+                    [
+                        'rule' => ['fileSize', Validation::COMPARE_LESS_OR_EQUAL, Text::parseFileSize($maxSize)],
+                        'message' => __d('file_uploader', 'The file must not exceed {0}', $maxSize)
+                    ]
+                );
+            }
         }
-        $this->table()->setSchema($schema);
     }
 
     /**

@@ -4,6 +4,7 @@ This plugin offers basic validation.
 
 You can validate your file against:
 
+* existence
 * mime type
 * extension
 * file size
@@ -14,6 +15,7 @@ Example:
 $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, ['image' => [
     // ... your other configs here ....
     'validation' => [
+        'allowEmptyFile' => true,
         'allowedExtensions' => ['jpg', 'pdf'],
         'allowedMimeTypes' => ['application/pdf', 'image/jpg'],
         'fileSize' => [
@@ -23,6 +25,12 @@ $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, ['image' 
     ]
 ]]);
 ```
+
+***validation.allowEmptyFile***
+
+Default value: true
+
+The file is required or optional. Possible values: true, false, 'created', 'updated'
 
 ***validation.allowedExtensions***
 
@@ -61,6 +69,7 @@ $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, ['image' 
     'table' => \App\Model\Table\MyUploadedFilesTable::class,
     'validation' => [
         'method' => 'image',
+        'allowEmptyFile' => true,
         'allowedExtensions' => ['jpg', 'pdf'],
         'allowedMimeTypes' => ['application/pdf', 'image/jpg'],
         'fileSize' => [

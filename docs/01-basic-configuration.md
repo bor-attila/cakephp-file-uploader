@@ -1,21 +1,12 @@
 ## Basic configuration
 
-The full default configuration looks like this and this is a common configuration, independent if you are using a file
-system or using a cloud provider.
+The minimal configuration:
 
 ```
-protected function _initializeSchema(TableSchemaInterface $schema): TableSchemaInterface
-{
-    // you must define the `photo`'s column file time
-    $schema->setColumnType('photo', 'upload.file');
-    
-    // ... 
-
-    return parent::_initializeSchema($schema);
-}
+$this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, ['photo']);
 ```
 
-then add behavior:
+The minimal configuration equal with the basic configuration:
 
 ```
 $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, [
@@ -29,6 +20,8 @@ $this->addBehavior(\FileUploader\Model\Behavior\UploadBehavior::class, [
     ]
 ]);
 ```
+
+This minimal configuration uses the file system, if you want to use a cloud provider you can extend this config.
 
 ***filePathProcessor***
 
