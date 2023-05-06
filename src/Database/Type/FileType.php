@@ -35,6 +35,11 @@ class FileType extends BaseType
      */
     public function toPHP($value, DriverInterface $driver)
     {
+        // in case of numbers, we cast to string to avoid Marshaller warning
+        if (is_numeric($value)) {
+            return (string)$value;
+        }
+        
         return $value;
     }
 }
