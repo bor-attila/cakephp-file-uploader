@@ -154,7 +154,7 @@ class UploadBehavior extends Behavior
      * @param \ArrayObject $options options for the current event
      * @return void
      */
-    public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options)
+    public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options): void
     {
         $validator = $this->table()->getValidator();
         $dataArray = $data->getArrayCopy();
@@ -291,7 +291,6 @@ class UploadBehavior extends Behavior
 
             $FilesTable->setFilesystem($processor->getRootDirectory(), $processor->getDirectory(), $client);
 
-            /** @var \FileUploader\Model\Entity\UploadedFile $fileEntity */
             $fileEntity = $FilesTable->newEntity(
                 $image_data,
                 [

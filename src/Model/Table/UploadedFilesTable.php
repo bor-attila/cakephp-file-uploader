@@ -21,7 +21,7 @@ use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
  * @method \FileUploader\Model\Entity\UploadedFile newEmptyEntity()
  * @method \FileUploader\Model\Entity\UploadedFile newEntity(array $data, array $options = [])
  * @method \FileUploader\Model\Entity\UploadedFile[] newEntities(array $data, array $options = [])
- * @method \FileUploader\Model\Entity\UploadedFile get($primaryKey, $options = [])
+ * @method \FileUploader\Model\Entity\UploadedFile get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
  * @method \FileUploader\Model\Entity\UploadedFile findOrCreate($search, ?callable $callback = null, $options = [])
  * @method \FileUploader\Model\Entity\UploadedFile patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method \FileUploader\Model\Entity\UploadedFile[] patchEntities(iterable $entities, array $data, array $options = [])
