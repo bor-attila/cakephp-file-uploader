@@ -46,7 +46,7 @@ class UploadBehavior extends Behavior
      *
      * @var array<string, mixed>
      */
-    protected $_defaultConfig = [];
+    protected array $_defaultConfig = [];
 
     /**
      * @var array Field names used by the framework
