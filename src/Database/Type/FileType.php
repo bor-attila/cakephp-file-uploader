@@ -3,21 +3,18 @@ declare(strict_types=1);
 
 namespace FileUploader\Database\Type;
 
-use Cake\Database\DriverInterface;
+use Cake\Database\Driver;
 use Cake\Database\Type\BaseType;
 
+/**
+ * Custom file type
+ */
 class FileType extends BaseType
 {
     /**
-     * Marshalls flat data into PHP objects.
-     *
-     * Most useful for converting request data into PHP objects
-     * that make sense for the rest of the ORM/Database layers.
-     *
-     * @param mixed $value The value to convert.
-     * @return mixed Converted value.
+     * @inheritDoc
      */
-    public function marshal($value): mixed
+    public function marshal(mixed $value): mixed
     {
         return $value;
     }
@@ -25,7 +22,7 @@ class FileType extends BaseType
     /**
      * @inheritDoc
      */
-    public function toDatabase($value, DriverInterface $driver): mixed
+    public function toDatabase(mixed $value, Driver $driver): mixed
     {
         return $value;
     }
@@ -33,9 +30,8 @@ class FileType extends BaseType
     /**
      * @inheritDoc
      */
-    public function toPHP($value, DriverInterface $driver): mixed
+    public function toPHP(mixed $value, Driver $driver): mixed
     {
-        // in case of numbers, we cast to string to avoid Marshaller warning
         if (is_numeric($value)) {
             return (string)$value;
         }
