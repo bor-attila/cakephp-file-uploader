@@ -37,7 +37,7 @@ class UploadedFile extends Entity
      *
      * @var array<string, bool>
      */
-    protected $_accessible = [
+    protected array $_accessible = [
         'root_dir' => true,
         'dir' => true,
         'filename' => true,
@@ -56,7 +56,7 @@ class UploadedFile extends Entity
     /**
      * @var string[] Hidden properties
      */
-    protected $_hidden = [
+    protected array $_hidden = [
         'root_dir',
         'dir',
         'filename',
