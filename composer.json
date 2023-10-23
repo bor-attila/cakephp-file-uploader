@@ -14,7 +14,8 @@
         "cakephp/cakephp": "^5.0"
     },
     "require-dev": {
-        "cakephp/cakephp-codesniffer": "^5.0"
+        "cakephp/cakephp-codesniffer": "^5.0",
+        "cakephp/migrations": "^4.1"
     },
     "suggest": {
         "league/flysystem-aws-s3-v3": "Required to upload files to AWS S3 bucket",

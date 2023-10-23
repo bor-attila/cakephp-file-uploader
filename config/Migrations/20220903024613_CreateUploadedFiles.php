@@ -13,11 +13,11 @@ class CreateUploadedFiles extends AbstractMigration
      *
      * @return void
      */
-    public function change()
+    public function change(): void
     {
         $table = $this->table('uploaded_files', ['id' => false, 'primary_key' => ['id']]);
         $table
-            ->addColumn('id', 'uuid')
+            ->addColumn('id', 'uuid', ['default' => null, 'null' => false])
             ->addColumn('root_dir', 'string', ['limit' => 255])
             ->addColumn('dir', 'string', ['limit' => 255])
             ->addColumn('filename', 'string', ['limit' => 255])
