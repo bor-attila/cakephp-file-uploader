@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace FileUploader\Model\Table;
 
 use ArrayObject;
+use Cake\Database\Schema\TableSchemaInterface;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
 use Cake\ORM\Table;
@@ -78,6 +79,7 @@ class UploadedFilesTable extends Table
         $this->setTable('uploaded_files');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
+        $this->getSchema()->setColumnType('metadata', TableSchemaInterface::TYPE_JSON);
 
         $this->addBehavior('Timestamp');
 
