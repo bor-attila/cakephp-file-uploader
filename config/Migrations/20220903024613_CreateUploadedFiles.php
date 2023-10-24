@@ -5,8 +5,6 @@ use Migrations\AbstractMigration;
 
 class CreateUploadedFiles extends AbstractMigration
 {
-    public bool $autoId = false;
-
     /**
      * Change Method.
      *
@@ -19,8 +17,6 @@ class CreateUploadedFiles extends AbstractMigration
     {
         $table = $this->table('uploaded_files');
         $table
-            ->addColumn('id', 'uuid')
-            ->addPrimaryKey('id')
             ->addColumn('root_dir', 'string', ['limit' => 255])
             ->addColumn('dir', 'string', ['limit' => 255])
             ->addColumn('filename', 'string', ['limit' => 255])

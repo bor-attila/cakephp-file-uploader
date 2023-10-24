@@ -22,17 +22,13 @@ bin/cake migrations migrate -p FileUploader
 
 OR
 
-You can create the database table manually then mark the migration completed.
+(if you want) You can create the database table manually
 
-```
-bin/cake migrations mark_migrated --target=20220903024613
-```
-
-The create database script for MySQL (8).
+To create database table, the script for MySQL (8) is:
 
 ```
 CREATE TABLE `uploaded_files` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
 
   -- the `root_dir` is the full path where we save the `dir` + `file` OR the container name in case of cloud
   `root_dir` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
