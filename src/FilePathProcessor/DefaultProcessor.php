@@ -17,7 +17,7 @@ use Psr\Http\Message\UploadedFileInterface;
  * The `root_dir` set to WWW_DIR
  * The `dir` set to {App.fileBaseDirectory}{DS}{table_alias}{DS}{year}{DS}{month}
  * The `filename` set to time()
- * The `ext` set to <Automatically detects the file's extension from file name>
+ * The `ext` set to < Automatically detects the file's extension from file name >
  * The `url` set to /{App.fileBaseDirectory}/{table_alias}/{year}/{month}/{filename}.{extension}
  */
 class DefaultProcessor implements FilePathProcessorInterface
@@ -68,6 +68,11 @@ class DefaultProcessor implements FilePathProcessorInterface
     private FrozenTime $currentTime;
 
     /**
+     * @var float The current time in milliseconds
+     */
+    private float $currentTimeInMilliseconds;
+
+    /**
      * @inheritDoc
      */
     public function __construct(
@@ -83,6 +88,8 @@ class DefaultProcessor implements FilePathProcessorInterface
         $this->field = $field;
         $this->settings = $settings;
         $this->currentTime = new FrozenTime(null, 'GMT');
+        $this->currentTimeInMilliseconds = floor(microtime(true) * 1000);
+        usleep(1000);
     }
 
     /**
@@ -112,7 +119,7 @@ class DefaultProcessor implements FilePathProcessorInterface
      */
     public function getFilename(): string
     {
-        return $this->currentTime->toUnixString();
+        return (string)$this->currentTimeInMilliseconds;
     }
 
     /**

@@ -16,7 +16,7 @@ use Psr\Http\Message\UploadedFileInterface;
  * The `root_dir` set to <provided container name>
  * The `dir` set to {table_alias}/{year}/{month}
  * The `filename` set to time()
- * The `ext` set to <Automatically detects the file's extension from file name>
+ * The `ext` set to < Automatically detects the file's extension from file name >
  * The `url` set to /{container_name}/{table_alias}/{year}/{month}/{filename}.{extension}
  */
 class CloudProcessor implements FilePathProcessorInterface
@@ -67,6 +67,11 @@ class CloudProcessor implements FilePathProcessorInterface
     private FrozenTime $currentTime;
 
     /**
+     * @var float The current time in milliseconds
+     */
+    private float $currentTimeInMilliseconds;
+
+    /**
      * @inheritDoc
      */
     public function __construct(
@@ -82,6 +87,8 @@ class CloudProcessor implements FilePathProcessorInterface
         $this->field = $field;
         $this->settings = $settings;
         $this->currentTime = new FrozenTime(null, 'GMT');
+        $this->currentTimeInMilliseconds = floor(microtime(true) * 1000);
+        usleep(1000);
     }
 
     /**
@@ -109,7 +116,7 @@ class CloudProcessor implements FilePathProcessorInterface
      */
     public function getFilename(): string
     {
-        return $this->currentTime->toUnixString();
+        return (string)$this->currentTimeInMilliseconds;
     }
 
     /**
