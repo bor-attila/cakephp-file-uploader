@@ -15,6 +15,7 @@ use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
 use League\Flysystem\Filesystem;
 use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
+use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 
 /**
  * UploadedFiles Model
@@ -105,7 +106,19 @@ class UploadedFilesTable extends Table
         } elseif ($client instanceof \Google\Cloud\Storage\StorageClient) {
             $adapter = new GoogleCloudStorageAdapter($client->bucket($container), $prefix);
         } else {
-            $adapter = new \League\Flysystem\Local\LocalFilesystemAdapter($container . $prefix);
+            $adapter = new \League\Flysystem\Local\LocalFilesystemAdapter(
+                $container . $prefix,
+                PortableVisibilityConverter::fromArray([
+                    'file' => [
+                        'public' => 0644,
+                        'private' => 0644,
+                    ],
+                    'dir' => [
+                        'public' => 0755,
+                        'private' => 0755,
+                    ],
+                ]),
+            );
         }
 
         $this->fileSystem = new Filesystem($adapter);
